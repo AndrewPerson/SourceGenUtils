@@ -4,8 +4,8 @@
 name: Publish Nuget Package
 
 on:
-  push:
-    branches: [ "main" ]
+  release:
+    types: [ "published" ]
   workflow_dispatch:
 
 jobs:
