@@ -11,7 +11,6 @@
     <PackageId>SourceGenUtils</PackageId>
     <Version>0.0.2</Version>
     <Authors>AP2</Authors>
-    <Company>AP2</Company>
     <PackageProjectURL>https://github.com/AndrewPerson/SourceGenUtils</PackageProjectURL>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/AndrewPerson/SourceGenUtils</RepositoryUrl>
