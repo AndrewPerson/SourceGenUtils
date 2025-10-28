@@ -10,7 +10,7 @@ namespace SourceGenUtils;
 public class ImmutableEquatableDictionary<TKey, TValue> :
     IEquatable<ImmutableEquatableDictionary<TKey, TValue>>, IImmutableDictionary<TKey, TValue>,
     IDictionary<TKey, TValue>, IDictionary
-    where TKey : notnull
+    where TKey : notnull where TValue : IEquatable<TValue>
 {
     public static ImmutableEquatableDictionary<TKey, TValue> Empty = new(ImmutableDictionary<TKey, TValue>.Empty);
     
@@ -52,7 +52,7 @@ public class ImmutableEquatableDictionary<TKey, TValue> :
 
     private readonly ImmutableDictionary<TKey, TValue> dictionary;
 
-    private ImmutableEquatableDictionary(ImmutableDictionary<TKey, TValue> dictionary)
+    internal ImmutableEquatableDictionary(ImmutableDictionary<TKey, TValue> dictionary)
     {
         this.dictionary = dictionary;
     }
@@ -148,4 +148,13 @@ public class ImmutableEquatableDictionary<TKey, TValue> :
     bool IReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) =>
 #nullable enable
         dictionary.TryGetValue(key, out value);
+}
+
+public static class ImmutableEquatableDictionary
+{
+    public static ImmutableEquatableDictionary<TKey, TValue> ToImmutableEquatableDictionary<TKey, TValue>(
+        this IEnumerable<KeyValuePair<TKey, TValue>> self) where TKey : notnull where TValue : IEquatable<TValue>
+        => self is ICollection<KeyValuePair<TKey, TValue>> { Count: 0 }
+            ? ImmutableEquatableDictionary<TKey, TValue>.Empty
+            : new(self.ToImmutableDictionary());
 }
