@@ -148,6 +148,11 @@ public class ImmutableEquatableDictionary<TKey, TValue> :
     bool IReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) =>
 #nullable enable
         dictionary.TryGetValue(key, out value);
+    
+    public override int GetHashCode()
+    {
+        return dictionary.Aggregate(0, (hash, kv) => hash ^ kv.GetHashCode());
+    }
 }
 
 public static class ImmutableEquatableDictionary
