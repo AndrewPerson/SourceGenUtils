@@ -9,7 +9,7 @@
   
   <PropertyGroup>
     <PackageId>SourceGenUtils</PackageId>
-    <Version>0.0.15</Version>
+    <Version>0.0.16</Version>
     <Authors>AP2</Authors>
     <PackageProjectURL>https://github.com/AndrewPerson/SourceGenUtils</PackageProjectURL>
     <PackageReadmeFile>README.md</PackageReadmeFile>
