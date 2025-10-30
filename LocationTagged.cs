@@ -14,8 +14,10 @@ public readonly record struct LocationTagged<T>(
 
     public LocationTagged<U> Select<U>(Func<T, U> selector) => new(selector(Value), Location);
 
-    public class ValueComparer(IEqualityComparer<T>? inner) : IEqualityComparer<LocationTagged<T>>
+    public class ValueComparer(IEqualityComparer<T>? inner = null) : IEqualityComparer<LocationTagged<T>>
     {
+        public static readonly ValueComparer Default = new ValueComparer();
+        
         public IEqualityComparer<T> Inner { get; } = inner ?? EqualityComparer<T>.Default;
         
         public bool Equals(LocationTagged<T> x, LocationTagged<T> y)
