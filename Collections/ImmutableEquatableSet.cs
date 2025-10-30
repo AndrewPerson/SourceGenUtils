@@ -8,11 +8,13 @@ namespace SourceGenUtils.Collections;
 
 public class ImmutableEquatableSet<T> : IImmutableSet<T>, IEquatable<ImmutableEquatableSet<T>> where T : IEquatable<T>
 {
+    public static readonly ImmutableEquatableSet<T> Empty = new(ImmutableHashSet<T>.Empty);
+    
     private readonly ImmutableHashSet<T> set;
     
     public int Count => set.Count;
 
-    private ImmutableEquatableSet(ImmutableHashSet<T> set)
+    internal ImmutableEquatableSet(ImmutableHashSet<T> set)
     {
         this.set = set;
     }
@@ -56,4 +58,13 @@ public class ImmutableEquatableSet<T> : IImmutableSet<T>, IEquatable<ImmutableEq
     public override bool Equals(object? obj) => obj is ImmutableEquatableSet<T> otherSet && Equals(otherSet);
 
     public override int GetHashCode() => set.Aggregate(0, (hash, v) => hash ^ v.GetHashCode());
+}
+
+public static class ImmutableEquatableSet
+{
+    public static ImmutableEquatableSet<T> ToImmutableEquatableSet<T>(this IEnumerable<T> values)
+        where T : IEquatable<T>
+        => values is ICollection<T> { Count: 0 }
+            ? ImmutableEquatableSet<T>.Empty
+            : new(values.ToImmutableHashSet());
 }
