@@ -10,12 +10,15 @@ namespace SourceGenUtils.Collections;
 public class ImmutableEquatableDictionary<TKey, TValue> : IEquatable<ImmutableEquatableDictionary<TKey, TValue>>, IImmutableDictionary<TKey, TValue>
     where TKey : notnull where TValue : IEquatable<TValue>
 {
-    public static ImmutableEquatableDictionary<TKey, TValue> Empty = new(ImmutableDictionary<TKey, TValue>.Empty);
+    public static readonly ImmutableEquatableDictionary<TKey, TValue> Empty = new(ImmutableDictionary<TKey, TValue>.Empty);
     
     public IEnumerable<TKey> Keys => dictionary.Keys;
     public IEnumerable<TValue> Values => dictionary.Values;
 
     public int Count => dictionary.Count;
+
+    public IEqualityComparer<TKey> KeyComparer => dictionary.KeyComparer;
+    public IEqualityComparer<TValue> ValueComparer => dictionary.ValueComparer;
 
     public TValue this[TKey key] => dictionary[key];
 
@@ -25,6 +28,10 @@ public class ImmutableEquatableDictionary<TKey, TValue> : IEquatable<ImmutableEq
     {
         this.dictionary = dictionary;
     }
+
+    public ImmutableEquatableDictionary<TKey, TValue> WithComparers(IEqualityComparer<TKey>? keyComparer) => new(dictionary.WithComparers(keyComparer));
+    public ImmutableEquatableDictionary<TKey, TValue> WithComparers(IEqualityComparer<TKey>? keyComparer, IEqualityComparer<TValue>? valueComparer)
+        => new(dictionary.WithComparers(keyComparer, valueComparer));
 
     public bool Contains(KeyValuePair<TKey, TValue> pair) => dictionary.Contains(pair);
     public bool ContainsKey(TKey key) => dictionary.ContainsKey(key);
@@ -63,7 +70,7 @@ public class ImmutableEquatableDictionary<TKey, TValue> : IEquatable<ImmutableEq
         dictionary.TryGetKey(equalKey, out actualKey);
 
 #nullable disable
-    bool IReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) =>
+    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) =>
 #nullable enable
         dictionary.TryGetValue(key, out value);
 
@@ -71,16 +78,13 @@ public class ImmutableEquatableDictionary<TKey, TValue> : IEquatable<ImmutableEq
     public bool Equals(ImmutableEquatableDictionary<TKey, TValue> other)
     {
         if (Count != other.Count) return false;
+        if (!Equals(ValueComparer, other.ValueComparer)) return false;
 
-        return this.All(kv =>
-        {
-            var otherValue = other[kv.Key];
-
-            return (kv.Value is null && otherValue is null) || (kv.Value?.Equals(otherValue) ?? false);
-        });
+        return this.All(kv => other.TryGetValue(kv.Key, out var otherValue) && ValueComparer.Equals(kv.Value, otherValue));
     }
     
-    public override int GetHashCode() => dictionary.Aggregate(0, (hash, kv) => hash ^ kv.GetHashCode());
+    public override int GetHashCode()
+        => dictionary.Aggregate(0, (hash, kv) => hash ^ HashCode.Combine(KeyComparer.GetHashCode(kv.Key), ValueComparer.GetHashCode(kv.Value)));
 }
 
 public static class ImmutableEquatableDictionary
