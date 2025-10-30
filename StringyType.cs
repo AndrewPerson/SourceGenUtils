@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using SourceGenUtils.Collections;
 
 namespace SourceGenUtils;
 
@@ -8,7 +9,7 @@ public readonly record struct StringyType
 (
     string? Namespace,
     string Type,
-    StringyType[] GenericParams
+    ImmutableEquatableArray<StringyType> GenericParams
 )
 {
     public string NamespaceQualifiedType => Namespace == null ? $"global::{GenericType}" : $"global::{Namespace}.{GenericType}";
@@ -19,22 +20,10 @@ public readonly record struct StringyType
         type.ContainingNamespace.IsGlobalNamespace ? null : type.ContainingNamespace.ToString(),
         type.Name,
         type is INamedTypeSymbol namedType
-            ? namedType.TypeArguments.Select(t => new StringyType(t)).ToArray()
-            : []
+            ? namedType.TypeArguments.Select(t => new StringyType(t)).ToImmutableEquatableArray()
+            : ImmutableEquatableArray<StringyType>.Empty
     )
     { }
 
     public override string ToString() => NamespaceQualifiedType;
-
-    public bool Equals(StringyType other)
-    {
-        return Namespace == other.Namespace
-               && Type == other.Type
-               && GenericParams.SequenceEqual(other.GenericParams);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Namespace, Type, GenericParams.Aggregate(0, HashCode.Combine));
-    }
 }
