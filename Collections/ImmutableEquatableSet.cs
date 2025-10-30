@@ -19,6 +19,8 @@ public class ImmutableEquatableSet<T> : IImmutableSet<T>, IEquatable<ImmutableEq
         this.set = set;
     }
 
+    public ImmutableEquatableSet<T> WithComparer(IEqualityComparer<T>? comparer) => new(set.WithComparer(comparer));
+
     IImmutableSet<T> IImmutableSet<T>.Clear() => Clear();
     public ImmutableEquatableSet<T> Clear() => new(set.Clear());
 
@@ -57,7 +59,7 @@ public class ImmutableEquatableSet<T> : IImmutableSet<T>, IEquatable<ImmutableEq
     public bool Equals(ImmutableEquatableSet<T> other) => set.SetEquals(other);
     public override bool Equals(object? obj) => obj is ImmutableEquatableSet<T> otherSet && Equals(otherSet);
 
-    public override int GetHashCode() => set.Aggregate(0, (hash, v) => hash ^ v.GetHashCode());
+    public override int GetHashCode() => set.Aggregate(0, (hash, v) => hash ^ set.KeyComparer.GetHashCode(v));
 }
 
 public static class ImmutableEquatableSet
