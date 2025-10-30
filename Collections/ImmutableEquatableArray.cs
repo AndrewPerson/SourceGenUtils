@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 
-namespace SourceGenUtils;
+namespace SourceGenUtils.Collections;
 
 [DebuggerDisplay("Length = {Length}")]
 [DebuggerTypeProxy(typeof(ImmutableEquatableArray<>.DebugView))]
