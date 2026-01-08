@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.CodeAnalysis;
 using SourceGenUtils.Collections;
 
@@ -12,8 +11,19 @@ public readonly record struct StringyType
     ImmutableEquatableArray<StringyType> GenericParams
 )
 {
-    public string NamespaceQualifiedType => Namespace == null ? $"global::{GenericType}" : $"global::{Namespace}.{GenericType}";
-    public string GenericType => GenericParams.Length == 0 ? Type : $"{Type}<{string.Join(", ", GenericParams.Select(p => p.NamespaceQualifiedType))}>";
+    public bool IsVoid => Namespace == "System" && Type == "Void";
+    
+    public string NamespaceQualifiedType => IsVoid
+        ? "void"
+        : Namespace == null
+            ? $"global::{GenericType}"
+            : $"global::{Namespace}.{GenericType}";
+    
+    public string GenericType => IsVoid
+        ? "void"
+        : GenericParams.Length == 0
+            ? Type
+            : $"{Type}<{string.Join(", ", GenericParams.Select(p => p.NamespaceQualifiedType))}>";
 
     public StringyType(ITypeSymbol type) : this
     (

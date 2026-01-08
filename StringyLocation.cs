@@ -26,6 +26,15 @@ public readonly record struct StringyLocation(
     )
     {
     }
+    
+    public StringyLocation(SyntaxToken syntaxToken) : this
+    (
+        syntaxToken.SyntaxTree!.FilePath,
+        syntaxToken.Span,
+        syntaxToken.SyntaxTree.GetLineSpan(syntaxToken.Span).Span
+    )
+    {
+    }
 
     public Location AsLocation()
     {
